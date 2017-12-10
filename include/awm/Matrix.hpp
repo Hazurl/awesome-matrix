@@ -2,69 +2,151 @@
 
 #include <awm/config.hpp>
 
+#include <numeric>
+#include <algorithm>
+#include <cmath>
+
 namespace awm {
 
-template<typename T, uint R, uint C>
+template<typename T, uint R, uint C, bool use_const_ref_not_value_copy = (sizeof(T) > 8)>
 class Matrix {
     static_assert((R*C) != 0, "Matrix must have at least one value");
+
+    using precision_float_type = 
+#ifdef AWM_DOUBLE_PRECISION
+        double;
+#else
+        float;
+#endif
+
+    using cr_value = std::conditional_t<use_const_ref_not_value_copy, const T&, T>;
+
     struct Row {
     private:
-        Matrix<T, R, C>& mat;
+        Matrix<T, R, C>* mat;
         uint r;
+        bool on_heap = false;
+
         friend Matrix<T, R, C>;
-        Row(Matrix<T, R, C>& mat, uint r) : mat(mat), r(r) {}
+
+        Row(Matrix<T, R, C>& mat, uint r) : mat(&mat), r(r) {}
+        Row(Matrix<T, R, C> const& mat, uint r) : mat(new Matrix<T, R, C>(mat)), r(r), on_heap(true) {}
+
     public:
+        ~Row() { if (on_heap) delete mat; }
 
         T& operator [](uint c) {
-            return mat.at(r, c);
+            return mat->at(r, c);
         }
 
-        const T& operator [](uint c) const {
-            return mat.at(r, c);
+        cr_value operator [](uint c) const {
+            return mat->at(r, c);
+        }
+
+        operator Matrix<T, 1, C> () {
+            Matrix<T, 1, C> m;
+            for(int i = 0; i < C; ++i)
+                m.at(0, i) = (*this)[i];
+            return m;
         }
 
     };
+
     struct CRow {
     private:
-        Matrix<T, R, C> const& mat;
+        Matrix<T, R, C> const* mat;
         uint r;
+
         friend Matrix<T, R, C>;
-        CRow(Matrix<T, R, C> const& mat, uint r) : mat(mat), r(r) {}
+
+        CRow(Matrix<T, R, C> const& mat, uint r) : mat(&mat), r(r) {}
     public:
 
-        const T& operator [](uint c) const {
-            return mat.at(r, c);
+        cr_value operator [](uint c) const {
+            return mat->at(r, c);
+        }
+
+        operator Matrix<T, 1, C> () {
+            Matrix<T, 1, C> m;
+            for(int i = 0; i < C; ++i)
+                m.at(0, i) = (*this)[i];
+            return m;
         }
 
     };
 public:
 
-    T& at(uint r, uint c) {
-        return mat[r*C + c];
+    T&       at(uint r, uint c) &        { return mat[r*C + c]; }
+    cr_value at(uint r, uint c) const &  { return mat[r*C + c]; }
+    T        at(uint r, uint c) const && { return mat[r*C + c]; }
+
+    explicit operator T* () &            { return mat; }
+    explicit operator const T* () const& { return mat; }
+
+    Row operator [] (uint r) &  { return Row(*this, r); }
+    Row operator [] (uint r) const && { return Row(*this, r); }
+    CRow operator [] (uint r) const &  { return CRow(*this, r); }
+
+    auto begin()            { return std::begin(mat); }
+    auto begin() const      { return std::begin(mat); }
+    auto cbegin() const     { return std::cbegin(mat); }
+    auto rbegin()           { return std::rbegin(mat); }
+    auto rbegin() const     { return std::rbegin(mat); }
+    auto crbegin() const    { return std::crbegin(mat); }
+
+    auto end()              { return std::end(mat); }
+    auto end() const        { return std::end(mat); }
+    auto cend() const       { return std::cend(mat); }
+    auto rend()             { return std::rend(mat); }
+    auto rend() const       { return std::rend(mat); }
+    auto crend() const      { return std::crend(mat); }
+
+    Matrix<T, C, R> transposed() const {
+        Matrix<T, C, R> m;
+        for(int r = 0; r < R; ++r)
+            for(int c = 0; c < C; ++c)
+                m.at(c, r) = this->at(r, c);
+        return m;
     }
 
-    const T& at(uint r, uint c) const {
-        return mat[r*C + c];
+    precision_float_type magnitude_square() const {
+        return std::accumulate(std::begin(mat), std::end(mat), 0, [] (cr_value acc, cr_value m) { return acc + m * m; });
     }
 
-    explicit operator T* () {
-        return mat;
+    precision_float_type magnitude() const {
+        return std::sqrt(magnitude_square());
     }
 
-    explicit operator const T* () const {
-        return mat;
-    }
-
-    Row operator [] (uint r) {
-        return Row{*this, r};
-    }
-
-    CRow operator [] (uint r) const {
-        return Row{*this, r};
+    Matrix<T, R, C> normalized() const {
+        Matrix<T, R, C> m;
+        auto mag = magnitude();
+        std::transform(std::begin(mat), std::end(mat), std::begin(m.mat), [mag] (cr_value t) { return t / mag; });
+        return m;
     }
 
 private:
     T mat [R * C];
 };
+
+/* Operations */
+
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator * (Matrix<T, R, C> const& m, typename Matrix<T, R, C>::cr_value s) {
+    Matrix<T, R, C> n;
+    std::transform(m.begin(), m.end(), n.begin(), [&s] (typename Matrix<T, R, C>::cr_value v) { return v * s; });
+    return n;
+}
+
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator * (typename Matrix<T, R, C>::cr_value s, Matrix<T, R, C> const& m) {
+    return m * s;
+}
+
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator + (Matrix<T, R, C> const& m, Matrix<T, R, C> const& n) {
+    Matrix<T, R, C> o;
+    std::transform(m.begin(), m.end(), n.begin(), o.begin(), [] (typename Matrix<T, R, C>::cr_value mv, typename Matrix<T, R, C>::cr_value nv) { return mv + nv; });
+    return o;
+}
 
 }
