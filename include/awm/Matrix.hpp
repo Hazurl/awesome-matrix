@@ -2,6 +2,10 @@
 
 #include <awm/config.hpp>
 
+// Operations
+#include <awm/Transposable.hpp>
+#include <awm//RowsOperations.hpp>
+
 #include <numeric>
 #include <algorithm>
 #include <cmath>
@@ -9,7 +13,12 @@
 namespace awm {
 
 template<typename T, uint R, uint C, bool use_const_ref_not_value_copy = (sizeof(T) > 8)>
-class Matrix {
+class Matrix :
+    public Transposable         <Matrix, T, R, C>,
+    public SwitchableRows       <Matrix, T, R, C>,
+    public DeletableRow         <Matrix, T, R, C>,
+    public MultiplyRow          <Matrix, T, R, C>
+{
     static_assert((R*C) != 0, "Matrix must have at least one value");
 
     using precision_float_type = 
@@ -76,12 +85,17 @@ class Matrix {
     };
 public:
 
+    Matrix() {}
+    Matrix(T initial) {
+        std::fill(begin(), end(), initial);
+    }
+
     T&       at(uint r, uint c) &        { return mat[r*C + c]; }
     cr_value at(uint r, uint c) const &  { return mat[r*C + c]; }
     T        at(uint r, uint c) const && { return mat[r*C + c]; }
 
-    explicit operator T* () &            { return mat; }
-    explicit operator const T* () const& { return mat; }
+    T* data () &            { return mat; }
+    const T* data () const& { return mat; }
 
     Row operator [] (uint r) &  { return Row(*this, r); }
     Row operator [] (uint r) const && { return Row(*this, r); }
@@ -100,14 +114,6 @@ public:
     auto rend()             { return std::rend(mat); }
     auto rend() const       { return std::rend(mat); }
     auto crend() const      { return std::crend(mat); }
-
-    Matrix<T, C, R> transposed() const {
-        Matrix<T, C, R> m;
-        for(int r = 0; r < R; ++r)
-            for(int c = 0; c < C; ++c)
-                m.at(c, r) = this->at(r, c);
-        return m;
-    }
 
     precision_float_type magnitude_square() const {
         return std::accumulate(std::begin(mat), std::end(mat), 0, [] (cr_value acc, cr_value m) { return acc + m * m; });
@@ -129,7 +135,20 @@ private:
 };
 
 /* Operations */
+/* Multiplication */
 
+// M * M
+template<typename T, uint R, uint C, uint X>
+Matrix<T, R, C> operator * (Matrix<T, R, X> const& m, Matrix<T, X, C> const& n) {
+    Matrix<T, R, C> o;
+    for(uint r = 0; r < R; ++r)
+        for(uint c = 0; c < C; ++c)
+            for(uint k = 0; k < X; ++k)
+                o.at(r, c) += m.at(r, k) * n.at(k, c);
+    return o;
+}
+
+// M * T
 template<typename T, uint R, uint C>
 Matrix<T, R, C> operator * (Matrix<T, R, C> const& m, typename Matrix<T, R, C>::cr_value s) {
     Matrix<T, R, C> n;
@@ -137,16 +156,58 @@ Matrix<T, R, C> operator * (Matrix<T, R, C> const& m, typename Matrix<T, R, C>::
     return n;
 }
 
+// T * M
 template<typename T, uint R, uint C>
 Matrix<T, R, C> operator * (typename Matrix<T, R, C>::cr_value s, Matrix<T, R, C> const& m) {
     return m * s;
 }
 
+/* Addition */
+
+// M + M
 template<typename T, uint R, uint C>
 Matrix<T, R, C> operator + (Matrix<T, R, C> const& m, Matrix<T, R, C> const& n) {
     Matrix<T, R, C> o;
     std::transform(m.begin(), m.end(), n.begin(), o.begin(), [] (typename Matrix<T, R, C>::cr_value mv, typename Matrix<T, R, C>::cr_value nv) { return mv + nv; });
     return o;
+}
+
+// M + T
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator + (Matrix<T, R, C> const& m, typename Matrix<T, R, C>::cr_value s) {
+    Matrix<T, R, C> n;
+    std::transform(m.begin(), m.end(), n.begin(), [&s] (typename Matrix<T, R, C>::cr_value v) { return v + s; });
+    return n;
+}
+
+// T + M
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator + (typename Matrix<T, R, C>::cr_value s, Matrix<T, R, C> const& m) {
+    return m + s;
+}
+
+/* Substraction */
+
+// M - M
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator - (Matrix<T, R, C> const& m, Matrix<T, R, C> const& n) {
+    Matrix<T, R, C> o;
+    std::transform(m.begin(), m.end(), n.begin(), o.begin(), [] (typename Matrix<T, R, C>::cr_value mv, typename Matrix<T, R, C>::cr_value nv) { return mv - nv; });
+    return o;
+}
+
+// M - T
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator - (Matrix<T, R, C> const& m, typename Matrix<T, R, C>::cr_value s) {
+    Matrix<T, R, C> n;
+    std::transform(m.begin(), m.end(), n.begin(), [&s] (typename Matrix<T, R, C>::cr_value v) { return v - s; });
+    return n;
+}
+
+// T - M
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator - (typename Matrix<T, R, C>::cr_value s, Matrix<T, R, C> const& m) {
+    return m - s;
 }
 
 }
