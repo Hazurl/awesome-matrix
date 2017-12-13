@@ -6,6 +6,29 @@ int main() {
 
     using namespace awm;
 
+    Matrix<float, 4, 4> m44(0);
+    m44.at(0, 0) = 1;
+    m44.at(0, 1) = 2;
+    m44.at(0, 2) = 3;
+    m44.at(0, 3) = 6;
+
+    m44.at(1, 0) = -2;
+    m44.at(1, 1) = -3;
+    m44.at(1, 2) = -4;
+    m44.at(1, 3) = -5;
+
+    m44.at(2, 0) = -3;
+    m44.at(2, 1) = 4;
+    m44.at(2, 2) = 5;
+    m44.at(2, 3) = -6;
+
+    m44.at(3, 0) = 4;
+    m44.at(3, 1) = 5;
+    m44.at(3, 2) = 6;
+    m44.at(3, 3) = 7;
+
+    std::cout << m44.determinant() << std::endl;
+
     Matrix<float, 2, 2> m(-1);
 
     std::cout <<
@@ -18,11 +41,15 @@ int main() {
         m.data()[3]
     << std::endl << std::endl;
 
+    std::cout << m.determinant() << std::endl;
+
     m.at(0, 1) = 42;
     m[0][0] = 1337;
     auto row = m[1];
     row[0] = -100;
     row[1] = 666;
+
+    std::cout << m.determinant() << std::endl;
 
     std::cout <<
         m.data()[0]
@@ -76,6 +103,12 @@ int main() {
         mm.data()[2]
         << " " <<
         mm.data()[3]
+    << std::endl << std::endl;
+
+    auto ms = m.submatrix<1, 0, 1, 1>();
+
+    std::cout <<
+        ms.data()[0]
     << std::endl << std::endl;
 
     return 0;

@@ -4,7 +4,11 @@
 
 // Operations
 #include <awm/Transposable.hpp>
-#include <awm//RowsOperations.hpp>
+#include <awm/RowsOperations.hpp>
+#include <awm/ColumnsOperations.hpp>
+#include <awm/SubMatrix.hpp>
+#include <awm/Determinant.hpp>
+#include <awm/Square.hpp>
 
 #include <numeric>
 #include <algorithm>
@@ -17,7 +21,13 @@ class Matrix :
     public Transposable         <Matrix, T, R, C>,
     public SwitchableRows       <Matrix, T, R, C>,
     public DeletableRow         <Matrix, T, R, C>,
-    public MultiplyRow          <Matrix, T, R, C>
+    public MultiplyRow          <Matrix, T, R, C>,
+    public SwitchableColumns    <Matrix, T, R, C>,
+    public DeletableColumn      <Matrix, T, R, C>,
+    public MultiplyColumn       <Matrix, T, R, C>,
+    public SubMatrix            <Matrix, T, R, C>,
+    public Square               <Matrix, T, R, C>,
+    public Determinant          <Matrix, T, R, C>
 {
     static_assert((R*C) != 0, "Matrix must have at least one value");
 
@@ -89,6 +99,10 @@ public:
     Matrix(T initial) {
         std::fill(begin(), end(), initial);
     }
+
+    constexpr uint row   () const { return R; }
+    constexpr uint column() const { return C; }
+    constexpr uint size  () const { return R*C; }
 
     T&       at(uint r, uint c) &        { return mat[r*C + c]; }
     cr_value at(uint r, uint c) const &  { return mat[r*C + c]; }
