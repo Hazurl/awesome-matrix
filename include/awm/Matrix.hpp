@@ -27,7 +27,8 @@ class Matrix :
     public MultiplyColumn       <Matrix, T, R, C>,
     public SubMatrix            <Matrix, T, R, C>,
     public Square               <Matrix, T, R, C>,
-    public Determinant          <Matrix, T, R, C>
+    public Determinant          <Matrix, T, R, C>,
+    public Without              <Matrix, T, R, C>
 {
     static_assert((R*C) != 0, "Matrix must have at least one value");
 

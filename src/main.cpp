@@ -105,10 +105,16 @@ int main() {
         mm.data()[3]
     << std::endl << std::endl;
 
-    auto ms = m.submatrix<1, 0, 1, 1>();
+    auto ms = m.submatrix<1, 1>(0, 1);
 
     std::cout <<
         ms.data()[0]
+    << std::endl << std::endl;
+
+    auto mw = m.without(1, 1);
+
+    std::cout <<
+        mw.data()[0]
     << std::endl << std::endl;
 
     return 0;
