@@ -131,6 +131,42 @@ int main() {
         m.data()[3]
     << std::endl << std::endl;
 
+    auto mi = m.inversed();
+
+    std::cout <<
+        mi.data()[0]
+        << " " <<
+        mi.data()[1]
+        << "\n" <<
+        mi.data()[2]
+        << " " <<
+        mi.data()[3]
+    << std::endl << std::endl;
+
+    auto mii = mi.inversed();
+
+    std::cout <<
+        mii.data()[0]
+        << " " <<
+        mii.data()[1]
+        << "\n" <<
+        mii.data()[2]
+        << " " <<
+        mii.data()[3]
+    << std::endl << std::endl;
+
+    auto m_i = mi * m;
+
+    std::cout <<
+        m_i.data()[0]
+        << " " <<
+        m_i.data()[1]
+        << "\n" <<
+        m_i.data()[2]
+        << " " <<
+        m_i.data()[3]
+    << std::endl << std::endl;
+
     float f[4];
     m.write_to(f);
     std::cout <<
