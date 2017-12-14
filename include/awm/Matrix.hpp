@@ -31,16 +31,9 @@ class Matrix :
     public SubMatrix            <Matrix, T, R, C>,
     public Square               <Matrix, T, R, C>,
     public Determinant          <Matrix, T, R, C>,
+    public Cofactors            <Matrix, T, R, C>,
     public Without              <Matrix, T, R, C>
 {
-    static_assert((R*C) != 0, "Matrix must have at least one value");
-
-    using precision_float_type = 
-#ifdef AWM_DOUBLE_PRECISION
-        double;
-#else
-        float;
-#endif
 
     using cr_value = std::conditional_t<use_const_ref_not_value_copy, const T&, T>;
 
@@ -139,21 +132,6 @@ public:
     auto rend() const       { return std::rend(mat); }
     auto crend() const      { return std::crend(mat); }
 
-    precision_float_type magnitude_square() const {
-        return std::accumulate(std::begin(mat), std::end(mat), 0, [] (cr_value acc, cr_value m) { return acc + m * m; });
-    }
-
-    precision_float_type magnitude() const {
-        return std::sqrt(magnitude_square());
-    }
-
-    Matrix<T, R, C> normalized() const {
-        Matrix<T, R, C> m;
-        auto mag = magnitude();
-        std::transform(std::begin(mat), std::end(mat), std::begin(m.mat), [mag] (cr_value t) { return t / mag; });
-        return m;
-    }
-
     void read_from(const T* a) {
         std::copy(a, a + R*C, begin());
     }
@@ -163,7 +141,7 @@ public:
     }
 
 private:
-    T mat [R * C];
+    T mat [R * C]; // 0-size compile only with GCC
 };
 
 /* Operations */

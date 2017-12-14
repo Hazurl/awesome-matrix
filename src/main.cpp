@@ -6,7 +6,7 @@ int main() {
 
     using namespace awm;
 
-    Matrix<float, 4, 4> m44(0);
+    Matrix<float, 4, 4> m44(0.);
     m44.at(0, 0) = 1;
     m44.at(0, 1) = 2;
     m44.at(0, 2) = 3;
@@ -155,6 +155,8 @@ int main() {
         << " " <<
         m.data()[3]
     << std::endl << std::endl;
+
+    Matrix<float, 0, 0> m0;
 
     return 0;
 }
