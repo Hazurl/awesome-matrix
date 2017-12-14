@@ -13,6 +13,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <initializer_list>
 
 namespace awm {
 
@@ -102,6 +103,12 @@ public:
     Matrix(T initial) {
         std::fill(begin(), end(), initial);
     }
+    Matrix(std::initializer_list<T> const& i) {
+        std::copy(std::begin(i), std::end(i), begin());
+    }
+    Matrix(const T* a) {
+        read_from(a);
+    }
 
     constexpr uint row   () const { return R; }
     constexpr uint column() const { return C; }
@@ -145,6 +152,14 @@ public:
         auto mag = magnitude();
         std::transform(std::begin(mat), std::end(mat), std::begin(m.mat), [mag] (cr_value t) { return t / mag; });
         return m;
+    }
+
+    void read_from(const T* a) {
+        std::copy(a, a + R*C, begin());
+    }
+
+    void write_to(T* a) const {
+        std::copy(begin(), end(), a);
     }
 
 private:
@@ -203,6 +218,14 @@ Matrix<T, R, C> operator + (typename Matrix<T, R, C>::cr_value s, Matrix<T, R, C
     return m + s;
 }
 
+// +M
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator + (Matrix<T, R, C> const& m) {
+    Matrix<T, R, C> o;
+    std::transform(m.begin(), m.end(), o.begin(), [] (typename Matrix<T, R, C>::cr_value mv) { return +mv; });
+    return o;
+}
+
 /* Substraction */
 
 // M - M
@@ -225,6 +248,14 @@ Matrix<T, R, C> operator - (Matrix<T, R, C> const& m, typename Matrix<T, R, C>::
 template<typename T, uint R, uint C>
 Matrix<T, R, C> operator - (typename Matrix<T, R, C>::cr_value s, Matrix<T, R, C> const& m) {
     return m - s;
+}
+
+// -M
+template<typename T, uint R, uint C>
+Matrix<T, R, C> operator - (Matrix<T, R, C> const& m) {
+    Matrix<T, R, C> o;
+    std::transform(m.begin(), m.end(), o.begin(), [] (typename Matrix<T, R, C>::cr_value mv) { return -mv; });
+    return o;
 }
 
 }

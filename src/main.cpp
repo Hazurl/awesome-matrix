@@ -29,7 +29,11 @@ int main() {
 
     std::cout << m44.determinant() << std::endl;
 
-    Matrix<float, 2, 2> m(-1);
+    Matrix<float, 2, 2> _m(-1);
+    Matrix<float, 2, 2> m{
+        -1, -3,
+        -2, -1
+    };
 
     std::cout <<
         m.data()[0]
@@ -115,6 +119,41 @@ int main() {
 
     std::cout <<
         mw.data()[0]
+    << std::endl << std::endl;
+
+    std::cout <<
+        m.data()[0]
+        << " " <<
+        m.data()[1]
+        << "\n" <<
+        m.data()[2]
+        << " " <<
+        m.data()[3]
+    << std::endl << std::endl;
+
+    float f[4];
+    m.write_to(f);
+    std::cout <<
+        f[0]
+        << " " <<
+        f[1]
+        << "\n" <<
+        f[2]
+        << " " <<
+        f[3]
+    << std::endl << std::endl;
+
+    f[2] = f[1] = 0.2f;
+    m.read_from(f);
+
+    std::cout <<
+        m.data()[0]
+        << " " <<
+        m.data()[1]
+        << "\n" <<
+        m.data()[2]
+        << " " <<
+        m.data()[3]
     << std::endl << std::endl;
 
     return 0;
