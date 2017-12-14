@@ -2,6 +2,10 @@
 
 #include <awm/config.hpp>
 
+#include <cmath>
+#include <numeric>
+#include <algorithm>
+
 namespace awm {
 
 template<template<typename, uint, uint> typename M, typename T, uint R, uint C, bool = (
@@ -15,21 +19,22 @@ class Norm {
 public:
 
     auto norm(int p = 2) const {
-        return magnitude(type);
+        return magnitude(p);
     }
 
     result_t magnitude(int p = 2) const {
-            return std::pow(std::accumulate(begin(), end(), T{}, [p] (cr_value acc, cr_value m) { return acc + std::pow(m, p); }), 1./p);
+            return std::pow(std::accumulate(static_cast<cthis_t>(this)->begin(), static_cast<cthis_t>(this)->end(), T{}, 
+                [p] (T const& acc, T const& m) { return acc + std::pow(m, p); }), 1./p);
     }
 
     result_t order_of_magnitude(int p = 2) const {
-        return std::accumulate(begin(), end(), T{}, [p] (cr_value acc, cr_value m) { return acc + std::pow(m, p); });
+        return std::accumulate(static_cast<cthis_t>(this)->begin(), static_cast<cthis_t>(this)->end(), T{}, [p] (T const& acc, T const& m) { return acc + std::pow(m, p); });
     }
 
-    Matrix<T, R, C> normalized(int p = 2) const {
-        Matrix<T, R, C> m;
+    M<T, R, C> normalized(int p = 2) const {
+        M<T, R, C> m;
         auto mag = magnitude(p);
-        std::transform(begin(), end(), m.begin(), [mag] (cr_value t) { return t / mag; });
+        std::transform(static_cast<cthis_t>(this)->begin(), static_cast<cthis_t>(this)->end(), m.begin(), [mag] (T const& t) { return t / mag; });
         return m;
     }
 

@@ -9,6 +9,7 @@
 #include <awm/SubMatrix.hpp>
 #include <awm/Determinant.hpp>
 #include <awm/Square.hpp>
+#include <awm/Norm.hpp>
 
 #include <numeric>
 #include <algorithm>
@@ -31,8 +32,10 @@ class Matrix :
     public SubMatrix            <Matrix, T, R, C>,
     public Square               <Matrix, T, R, C>,
     public Determinant          <Matrix, T, R, C>,
+    public Adjugate             <Matrix, T, R, C>,
     public Cofactors            <Matrix, T, R, C>,
-    public Without              <Matrix, T, R, C>
+    public Without              <Matrix, T, R, C>,
+    public Norm                 <Matrix, T, R, C>
 {
 
     using cr_value = std::conditional_t<use_const_ref_not_value_copy, const T&, T>;
