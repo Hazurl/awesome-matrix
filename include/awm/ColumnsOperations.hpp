@@ -67,6 +67,30 @@ template<template<typename, uint, uint> typename M, typename T, uint R, uint C>
 class DeletableColumn<M, T, R, C, false> {};
 
 template<template<typename, uint, uint> typename M, typename T, uint R, uint C, bool = (
+    // columns are extractable ?
+    true
+)>
+class ExtractableColumn {
+    using this_t = M<T, R, C>*;
+    using cthis_t = const M<T, R, C>*;
+    using result_t = M<T, R, 1>;
+public:
+
+    result_t extract_column(uint cc) const {
+        assert(cc < C);
+        
+        result_t m;
+        for(uint r = 0; r < R; ++r)
+            m.at(r, 0) = static_cast<cthis_t>(this)->at(r, cc);
+        return m;
+    }
+
+};
+
+template<template<typename, uint, uint> typename M, typename T, uint R, uint C>
+class ExtractableColumn<M, T, R, C, false> {};
+
+template<template<typename, uint, uint> typename M, typename T, uint R, uint C, bool = (
     // columns are multipliable ?
     true
 )>

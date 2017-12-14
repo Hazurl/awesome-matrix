@@ -67,6 +67,30 @@ template<template<typename, uint, uint> typename M, typename T, uint R, uint C>
 class DeletableRow<M, T, R, C, false> {};
 
 template<template<typename, uint, uint> typename M, typename T, uint R, uint C, bool = (
+    // rows are extractable ?
+    true
+)>
+class ExtractableRow {
+    using this_t = M<T, R, C>*;
+    using cthis_t = const M<T, R, C>*;
+    using result_t = M<T, 1, C>;
+public:
+
+    result_t extract_row(uint rr) const {
+        assert(rr < R);
+        
+        result_t m;
+        for(uint c = 0; c < C; ++c)
+            m.at(0, c) = static_cast<cthis_t>(this)->at(rr, c);
+        return m;
+    }
+
+};
+
+template<template<typename, uint, uint> typename M, typename T, uint R, uint C>
+class ExtractableRow<M, T, R, C, false> {};
+
+template<template<typename, uint, uint> typename M, typename T, uint R, uint C, bool = (
     // rows are multipliable ?
     true
 )>

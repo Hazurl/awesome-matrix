@@ -21,7 +21,7 @@ public:
     result_t determinant() const {
         result_t result{};
         for(uint i = 0; i < R; ++i) {
-            auto sub = static_cast<cthis_t>(this)->delete_row(0).delete_column(i);
+            auto sub = static_cast<cthis_t>(this)->without(0, i);
             result += (i%2 == 0? 1 : -1) * static_cast<cthis_t>(this)->at(0, i) * sub.determinant();
         }
         return result;
