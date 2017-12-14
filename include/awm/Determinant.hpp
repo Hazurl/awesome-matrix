@@ -200,4 +200,34 @@ public:
 template<template<typename, uint, uint> typename M, typename T, uint R, uint C>
 class Adjugate<M, T, R, C, false> {};
 
+template<template<typename, uint, uint> typename M, typename T, uint R, uint C, bool = (
+    // Has an inverse ?
+    R == C
+)>
+class Inverse {
+    using this_t = M<T, R, C>*;
+    using cthis_t = const M<T, R, C>*;
+    using result_t = M<decltype(std::declval<decltype(std::declval<Determinant<M, T, R-1, C-1>>())>().determinant()), C, R>;
+public:
+
+    result_t inversed() const {
+        return static_cast<cthis_t>(this)->adjugate() / static_cast<cthis_t>(this)->determinant();
+    }
+
+};
+
+template<template<typename, uint, uint> typename M, typename T>
+class Inverse<M, T, 0, 0, true> {
+    using this_t = M<T, 0, 0>*;
+    using cthis_t = const M<T, 0, 0>*;
+public:
+
+    M<T, 0, 0> inversed() const {
+        return {};
+    }
+};
+
+template<template<typename, uint, uint> typename M, typename T, uint R, uint C>
+class Inverse<M, T, R, C, false> {};
+
 }
