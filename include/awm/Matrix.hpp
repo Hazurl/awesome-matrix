@@ -55,6 +55,9 @@ private:
         Row(Matrix<T, R, C> const& mat, uint r) : mat(new Matrix<T, R, C>(mat)), r(r), on_heap(true) {}
 
     public:
+        Row(Row const& row) : Row(row.mat, row.r) {}
+        Row(Row&& row) : Row(row.mat, row.r) { row.on_heap = false; }
+        Row& operator = (Row row) { if (on_heap) delete mat; mat = std::move(row.mat); r = std::move(mat.r); on_heap = row.on_heap; row.on_heap = false;}
         ~Row() { if (on_heap) delete mat; }
 
         T& operator [](uint c) {
@@ -76,12 +79,13 @@ private:
 
     struct CRow {
     private:
-        Matrix<T, R, C> const* mat;
+        const Matrix<T, R, C>* mat;
         uint r;
 
         friend Matrix<T, R, C>;
 
         CRow(Matrix<T, R, C> const& mat, uint r) : mat(&mat), r(r) {}
+        CRow(Row const& row) : mat(row.mat), r(row.r) {}
     public:
 
         cr_value operator [](uint c) const {

@@ -9,25 +9,24 @@
 namespace awm {
 
 template<template<typename, uint, uint> typename M, typename T, uint R, uint C, bool = (
-    // Is Noarm-able ?
+    // Is Norm-able ?
     true
 )>
 class Norm {
     using this_t = M<T, R, C>*;
     using cthis_t = const M<T, R, C>*;
-    using result_t = decltype(std::declval<T>() * std::declval<T>() + std::declval<T>() * std::declval<T>());
 public:
 
     auto norm(int p = 2) const {
         return magnitude(p);
     }
 
-    result_t magnitude(int p = 2) const {
+    auto magnitude(int p = 2) const {
             return std::pow(std::accumulate(static_cast<cthis_t>(this)->begin(), static_cast<cthis_t>(this)->end(), T{}, 
                 [p] (T const& acc, T const& m) { return acc + std::pow(m, p); }), 1./p);
     }
 
-    result_t order_of_magnitude(int p = 2) const {
+    auto order_of_magnitude(int p = 2) const {
         return std::accumulate(static_cast<cthis_t>(this)->begin(), static_cast<cthis_t>(this)->end(), T{}, [p] (T const& acc, T const& m) { return acc + std::pow(m, p); });
     }
 
