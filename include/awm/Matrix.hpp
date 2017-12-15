@@ -117,30 +117,30 @@ public:
     constexpr uint column() const { return C; }
     constexpr uint size  () const { return R*C; }
 
-    T&       at(uint r, uint c) &        { return mat[r*C + c]; }
-    cr_value at(uint r, uint c) const &  { return mat[r*C + c]; }
-    T        at(uint r, uint c) const && { return mat[r*C + c]; }
+    T&       at(uint r, uint c) &        { return __mat[r*C + c]; }
+    cr_value at(uint r, uint c) const &  { return __mat[r*C + c]; }
+    T        at(uint r, uint c) const && { return __mat[r*C + c]; }
 
-    T* data () &            { return mat; }
-    const T* data () const& { return mat; }
+          T* data () &      { return __mat; }
+    const T* data () const& { return __mat; }
 
-    Row operator [] (uint r) &  { return Row(*this, r); }
-    Row operator [] (uint r) const && { return Row(*this, r); }
-    CRow operator [] (uint r) const &  { return CRow(*this, r); }
+    Row operator [] (uint r) &          { return Row(*this, r); }
+    Row operator [] (uint r) const &&   { return Row(*this, r); }
+    CRow operator [] (uint r) const &   { return CRow(*this, r); }
 
-    auto begin()            { return std::begin(mat); }
-    auto begin() const      { return std::begin(mat); }
-    auto cbegin() const     { return std::cbegin(mat); }
-    auto rbegin()           { return std::rbegin(mat); }
-    auto rbegin() const     { return std::rbegin(mat); }
-    auto crbegin() const    { return std::crbegin(mat); }
+    auto begin()            { return std::begin(__mat); }
+    auto begin() const      { return std::begin(__mat); }
+    auto cbegin() const     { return std::cbegin(__mat); }
+    auto rbegin()           { return std::rbegin(__mat); }
+    auto rbegin() const     { return std::rbegin(__mat); }
+    auto crbegin() const    { return std::crbegin(__mat); }
 
-    auto end()              { return std::end(mat); }
-    auto end() const        { return std::end(mat); }
-    auto cend() const       { return std::cend(mat); }
-    auto rend()             { return std::rend(mat); }
-    auto rend() const       { return std::rend(mat); }
-    auto crend() const      { return std::crend(mat); }
+    auto end()              { return std::end(__mat); }
+    auto end() const        { return std::end(__mat); }
+    auto cend() const       { return std::cend(__mat); }
+    auto rend()             { return std::rend(__mat); }
+    auto rend() const       { return std::rend(__mat); }
+    auto crend() const      { return std::crend(__mat); }
 
     void read_from(const T* a) {
         std::copy(a, a + R*C, begin());
@@ -151,7 +151,7 @@ public:
     }
 
 private:
-    T mat [R * C]; // 0-size compile only with GCC
+    T __mat [R * C]; // 0-size compile only with GCC
 };
 
 /* Operations */
