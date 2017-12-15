@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cmath>
 #include <initializer_list>
+#include <sstream>
 
 namespace awm {
 
@@ -106,7 +107,7 @@ private:
 public:
 
     Matrix() {}
-    Matrix(T initial) {
+    Matrix(cr_value initial) {
         std::fill(begin(), end(), initial);
     }
     Matrix(std::initializer_list<T> const& i) {
@@ -262,6 +263,47 @@ Matrix<T, R, C> operator - (Matrix<T, R, C> const& m) {
     Matrix<T, R, C> o;
     std::transform(m.begin(), m.end(), o.begin(), [] (typename Matrix<T, R, C>::cr_value mv) { return -mv; });
     return o;
+}
+
+/* Stream */
+
+template<typename T, uint R, uint C>
+std::ostream& operator << (std::ostream& os, Matrix<T, R, C> const& m) {
+    uint size = 0;
+    for (uint r = 0; r < R; r++) {
+        for(uint c = 0; c < C ; ++c) {
+            std::stringstream ss;
+            ss << m.at(r, c) << " ";
+            ss.seekg(0, std::ios::end);
+            size = std::max(size, static_cast<uint>(ss.tellg()));
+        }
+    }
+
+    if (R == 0) os << "[]\n";
+    for (uint r = 0; r < R; r++) {
+        if (r == 0)
+            os << (R == 1 ? "[ " : "┌ ");
+        else if (r < R - 1)
+            os << "│ ";
+        else
+            os << "└ ";
+        for(uint c = 0; c < C ; ++c) {
+            std::stringstream ss;
+            ss << m.at(r, c) << " ";
+            ss.seekg(0, std::ios::end);
+            uint csize = ss.tellg();
+            for(int i = size - csize; i > 0; --i)
+                os << ' ';
+            os << ss.str();
+        }
+        if (r == 0)
+            os << (R == 1 ? "]\n" : "┐\n");
+        else if (r < R-1)
+            os << "│\n";
+        else
+            os << "┘\n";
+    }
+    return os;
 }
 
 }

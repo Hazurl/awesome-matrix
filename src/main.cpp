@@ -27,6 +27,8 @@ int main() {
     m44.at(3, 2) = 6;
     m44.at(3, 3) = 7;
 
+    std::cout << m44 << std::endl;
+
     std::cout << m44.determinant() << std::endl;
 
     Matrix<float, 2, 2> _m(-1);
@@ -35,15 +37,7 @@ int main() {
         -2, -1
     };
 
-    std::cout <<
-        m.data()[0]
-        << " " <<
-        m.data()[1]
-        << "\n" <<
-        m.data()[2]
-        << " " <<
-        m.data()[3]
-    << std::endl << std::endl;
+    std::cout << m << std::endl;
 
     std::cout << m.determinant() << std::endl;
 
@@ -55,117 +49,45 @@ int main() {
 
     std::cout << m.determinant() << std::endl;
 
-    std::cout <<
-        m.data()[0]
-        << " " <<
-        m.data()[1]
-        << "\n" <<
-        m.data()[2]
-        << " " <<
-        m.data()[3]
-    << std::endl << std::endl;
+    std::cout << m << std::endl;
 
     auto mr = m.switch_rows(0, 1);
 
-    std::cout <<
-        mr.data()[0]
-        << " " <<
-        mr.data()[1]
-        << "\n" <<
-        mr.data()[2]
-        << " " <<
-        mr.data()[3]
-    << std::endl << std::endl;
+    std::cout << mr << std::endl;
 
     auto mt = m.transposed();
 
-    std::cout <<
-        mt.data()[0]
-        << " " <<
-        mt.data()[1]
-        << "\n" <<
-        mt.data()[2]
-        << " " <<
-        mt.data()[3]
-    << std::endl << std::endl;
+    std::cout << mt << std::endl;
 
     auto md = mt.delete_row(1);
 
-    std::cout <<
-        md.data()[0]
-        << " " <<
-        md.data()[1]
-    << std::endl << std::endl;
+    std::cout << md << std::endl;
 
     auto mm = m.multiply_row<float>(0, 0.5);
 
-    std::cout <<
-        mm.data()[0]
-        << " " <<
-        mm.data()[1]
-        << "\n" <<
-        mm.data()[2]
-        << " " <<
-        mm.data()[3]
-    << std::endl << std::endl;
+    std::cout << mm << std::endl;
 
     auto ms = m.submatrix<1, 1>(0, 1);
 
-    std::cout <<
-        ms.data()[0]
-    << std::endl << std::endl;
+    std::cout << ms << std::endl;
 
     auto mw = m.without(1, 1);
 
-    std::cout <<
-        mw.data()[0]
-    << std::endl << std::endl;
+    std::cout << mw << std::endl;
 
-    std::cout <<
-        m.data()[0]
-        << " " <<
-        m.data()[1]
-        << "\n" <<
-        m.data()[2]
-        << " " <<
-        m.data()[3]
-    << std::endl << std::endl;
+    std::cout << m << std::endl;
 
     auto mi = m.inversed();
 
-    std::cout <<
-        mi.data()[0]
-        << " " <<
-        mi.data()[1]
-        << "\n" <<
-        mi.data()[2]
-        << " " <<
-        mi.data()[3]
-    << std::endl << std::endl;
+    std::cout << mi << std::endl;
 
     auto mii = mi.inversed();
 
-    std::cout <<
-        mii.data()[0]
-        << " " <<
-        mii.data()[1]
-        << "\n" <<
-        mii.data()[2]
-        << " " <<
-        mii.data()[3]
-    << std::endl << std::endl;
+    std::cout << mii << std::endl;
 
     auto m_i = mi * m;
 
-    std::cout <<
-        m_i.m00
-        << " " <<
-        m_i.m01
-        << "\n" <<
-        m_i.m10
-        << " " <<
-        m_i.m00
-    << std::endl << std::endl;
+    std::cout << m_i << std::endl;
 
     float f[4];
     m.write_to(f);
@@ -182,17 +104,13 @@ int main() {
     f[2] = f[1] = 0.2f;
     m.read_from(f);
 
-    std::cout <<
-        m.data()[0]
-        << " " <<
-        m.data()[1]
-        << "\n" <<
-        m.data()[2]
-        << " " <<
-        m.data()[3]
-    << std::endl << std::endl;
+    std::cout << m << std::endl;
 
     Matrix<float, 0, 0> m0;
+
+    std::cout << m0 << std::endl;
+
+    std::cout << Matrix<int, 20, 20>::identity() << std::endl;
 
     std::cout << m0.magnitude() << std::endl;
 
