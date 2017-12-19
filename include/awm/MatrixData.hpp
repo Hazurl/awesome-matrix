@@ -4,58 +4,42 @@
 
 namespace awm {
 
+#define POINTER_DATA(size)\
+    inline T*       pointer_data ()       { return data; }\
+    inline const T* pointer_data () const { return data; }\
+    inline T*       pointer_data_end ()       { return data + size; }\
+    inline const T* pointer_data_end () const { return data + size; }
+
+#define POINTER_DATA_NULLPTR()\
+    inline T*       pointer_data ()       { return nullptr; }\
+    inline const T* pointer_data () const { return nullptr; }\
+    inline T*       pointer_data_end ()       { return nullptr; }\
+    inline const T* pointer_data_end () const { return nullptr; }
+
 template<typename T, uint R, uint C> 
 class MatrixData {
 public:
-
     T data[R*C];
-
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + R*C; }
-    inline const T* pointer_data_end () const { return data + R*C; }
-
+    POINTER_DATA(R*C)
 };
 
 template<typename T, uint C> 
 class MatrixData<T, 0, C> {
-public:
-
 protected:
-    inline T*       pointer_data ()       { return nullptr; }
-    inline const T* pointer_data () const { return nullptr; }
-
-    inline T*       pointer_data_end ()       { return nullptr; }
-    inline const T* pointer_data_end () const { return nullptr; }
-
+    POINTER_DATA_NULLPTR()
 };
 
 template<typename T, uint R> 
 class MatrixData<T, R, 0> {
-public:
-
 protected:
-    inline T*       pointer_data ()       { return nullptr; }
-    inline const T* pointer_data () const { return nullptr; }
-
-    inline T*       pointer_data_end ()       { return nullptr; }
-    inline const T* pointer_data_end () const { return nullptr; }
-
+    POINTER_DATA_NULLPTR()
 };
 
 template<typename T> 
 class MatrixData<T, 0, 0> {
-public:
-
 protected:
-    inline T*       pointer_data ()       { return nullptr; }
-    inline const T* pointer_data () const { return nullptr; }
-
-    inline T*       pointer_data_end ()       { return nullptr; }
-    inline const T* pointer_data_end () const { return nullptr; }
-
+    POINTER_DATA_NULLPTR()
 };
 
 template<typename T> 
@@ -81,11 +65,7 @@ public:
     }
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + 1; }
-    inline const T* pointer_data_end () const { return data + 1; }
+    POINTER_DATA(1)
 
 };
 
@@ -104,11 +84,7 @@ public:
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + 2; }
-    inline const T* pointer_data_end () const { return data + 2; }
+    POINTER_DATA(2)
 
 };
 
@@ -127,11 +103,7 @@ public:
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + 3; }
-    inline const T* pointer_data_end () const { return data + 3; }
+    POINTER_DATA(3)
 
 };
 
@@ -150,11 +122,7 @@ public:
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + 4; }
-    inline const T* pointer_data_end () const { return data + 4; }
+    POINTER_DATA(4)
 
 };
 
@@ -168,16 +136,64 @@ public:
             T x, y;
         };
         struct {
-            T m00, m01;
+            T m00, 
+              m01;
         };
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
+    POINTER_DATA(2)
 
-    inline T*       pointer_data_end ()       { return data + 2; }
-    inline const T* pointer_data_end () const { return data + 2; }
+};
+
+template<typename T> 
+class MatrixData<T, 2, 2> {
+public:
+
+    union {
+        T data[4];
+        struct {
+            T m00, m01, 
+              m10, m11;
+        };
+    };
+
+protected:
+    POINTER_DATA(4)
+
+};
+
+template<typename T> 
+class MatrixData<T, 2, 3> {
+public:
+
+    union {
+        T data[6];
+        struct {
+            T m00, m01, m02,
+              m10, m11, m12;
+        };
+    };
+
+protected:
+    POINTER_DATA(6)
+
+};
+
+template<typename T> 
+class MatrixData<T, 2, 4> {
+public:
+
+    union {
+        T data[6];
+        struct {
+            T m00, m01, m02, m03,
+              m10, m11, m12, m13;
+        };
+    };
+
+protected:
+    POINTER_DATA(8)
 
 };
 
@@ -191,16 +207,68 @@ public:
             T x, y, z;
         };
         struct {
-            T m00, m01, m02;
+            T m00, 
+              m01, 
+              m02;
         };
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
+    POINTER_DATA(3)
 
-    inline T*       pointer_data_end ()       { return data + 3; }
-    inline const T* pointer_data_end () const { return data + 3; }
+};
+
+template<typename T> 
+class MatrixData<T, 3, 2> {
+public:
+
+    union {
+        T data[6];
+        struct {
+            T m00, m01,
+              m10, m11,
+              m20, m21;
+        };
+    };
+
+protected:
+    POINTER_DATA(6)
+
+};
+
+template<typename T> 
+class MatrixData<T, 3, 3> {
+public:
+
+    union {
+        T data[9];
+        struct {
+            T m00, m01, m02,
+              m10, m11, m12,
+              m20, m21, m22;
+        };
+    };
+
+protected:
+    POINTER_DATA(9)
+
+};
+
+template<typename T> 
+class MatrixData<T, 3, 4> {
+public:
+
+    union {
+        T data[3];
+        struct {
+            T m00, m01, m02, m03,
+              m10, m11, m12, m13,
+              m20, m21, m22, m23;
+        };
+    };
+
+protected:
+    POINTER_DATA(12)
 
 };
 
@@ -219,53 +287,45 @@ public:
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + 4; }
-    inline const T* pointer_data_end () const { return data + 4; }
+    POINTER_DATA(4)
 
 };
 
 template<typename T> 
-class MatrixData<T, 2, 2> {
+class MatrixData<T, 4, 2> {
 public:
 
     union {
-        T data[4];
+        T data[8];
         struct {
-            T m00, m01, m10, m11;
+            T m00, m01,
+              m10, m11,
+              m20, m21,
+              m30, m31;
         };
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + 4; }
-    inline const T* pointer_data_end () const { return data + 4; }
+    POINTER_DATA(8)
 
 };
 
 template<typename T> 
-class MatrixData<T, 3, 3> {
+class MatrixData<T, 4, 3> {
 public:
 
     union {
-        T data[9];
+        T data[12];
         struct {
             T m00, m01, m02,
               m10, m11, m12,
-              m20, m21, m22;
+              m20, m21, m22,
+              m30, m31, m32;
         };
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + 9; }
-    inline const T* pointer_data_end () const { return data + 9; }
+    POINTER_DATA(12)
 
 };
 
@@ -284,11 +344,7 @@ public:
     };
 
 protected:
-    inline T*       pointer_data ()       { return data; }
-    inline const T* pointer_data () const { return data; }
-
-    inline T*       pointer_data_end ()       { return data + 16; }
-    inline const T* pointer_data_end () const { return data + 16; }
+    POINTER_DATA(16)
 
 };
 

@@ -158,13 +158,13 @@ int main() {
     auto m_i = mi * m;
 
     std::cout <<
-        m_i.data()[0]
+        m_i.m00
         << " " <<
-        m_i.data()[1]
+        m_i.m01
         << "\n" <<
-        m_i.data()[2]
+        m_i.m10
         << " " <<
-        m_i.data()[3]
+        m_i.m00
     << std::endl << std::endl;
 
     float f[4];
