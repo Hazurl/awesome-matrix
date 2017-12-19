@@ -2,6 +2,8 @@
 
 #include <awm/config.hpp>
 
+#include <awm/MatrixData.hpp>
+
 // Operations
 #include <awm/Transposable.hpp>
 #include <awm/RowsOperations.hpp>
@@ -18,8 +20,9 @@
 
 namespace awm {
 
-template<typename T, uint R, uint C, bool use_const_ref_not_value_copy = (sizeof(T) > 8)>
+template<typename T, uint R, uint C>
 class Matrix :
+    public MatrixData           <        T, R, C>,
     public Transposable         <Matrix, T, R, C>,
     public SwitchableRows       <Matrix, T, R, C>,
     public DeletableRow         <Matrix, T, R, C>,
@@ -40,7 +43,7 @@ class Matrix :
 {
 
 public:
-    using cr_value = std::conditional_t<use_const_ref_not_value_copy, const T&, T>;
+    using cr_value = std::conditional_t<(sizeof(T) > 8), const T&, T>;
 
 private:
     struct Row {
@@ -55,8 +58,8 @@ private:
         Row(Matrix<T, R, C> const& mat, uint r) : mat(new Matrix<T, R, C>(mat)), r(r), on_heap(true) {}
 
     public:
-        Row(Row const& row) : Row(row.mat, row.r) {}
-        Row(Row&& row) : Row(row.mat, row.r) { row.on_heap = false; }
+        Row(Row const& row) : Row(*row.mat, row.r) {}
+        Row(Row&& row) : Row(*row.mat, row.r) { row.on_heap = false; }
         Row& operator = (Row row) { if (on_heap) delete mat; mat = std::move(row.mat); r = std::move(mat.r); on_heap = row.on_heap; row.on_heap = false;}
         ~Row() { if (on_heap) delete mat; }
 
@@ -117,31 +120,33 @@ public:
     constexpr uint column() const { return C; }
     constexpr uint size  () const { return R*C; }
 
-    T&       at(uint r, uint c) &        { return __mat[r*C + c]; }
-    cr_value at(uint r, uint c) const &  { return __mat[r*C + c]; }
-    T        at(uint r, uint c) const && { return __mat[r*C + c]; }
+    T&       at(uint r, uint c) &        { return this->pointer_data()[r*C + c]; }
+    cr_value at(uint r, uint c) const &  { return this->pointer_data()[r*C + c]; }
+    T        at(uint r, uint c) const && { return this->pointer_data()[r*C + c]; }
 
-          T* data () &      { return __mat; }
-    const T* data () const& { return __mat; }
+          T* data () &      { return this->pointer_data(); }
+    const T* data () const& { return this->pointer_data(); }
 
     Row operator [] (uint r) &          { return Row(*this, r); }
     Row operator [] (uint r) const &&   { return Row(*this, r); }
     CRow operator [] (uint r) const &   { return CRow(*this, r); }
 
-    auto begin()            { return std::begin(__mat); }
-    auto begin() const      { return std::begin(__mat); }
-    auto cbegin() const     { return std::cbegin(__mat); }
-    auto rbegin()           { return std::rbegin(__mat); }
-    auto rbegin() const     { return std::rbegin(__mat); }
-    auto crbegin() const    { return std::crbegin(__mat); }
-
-    auto end()              { return std::end(__mat); }
-    auto end() const        { return std::end(__mat); }
-    auto cend() const       { return std::cend(__mat); }
-    auto rend()             { return std::rend(__mat); }
-    auto rend() const       { return std::rend(__mat); }
-    auto crend() const      { return std::crend(__mat); }
-
+    auto begin()            { return this->pointer_data(); }
+    auto begin() const      { return this->pointer_data(); }
+    auto cbegin() const     { return this->pointer_data(); }
+/* need a proper class
+    auto rbegin()           { return std::rbegin(this->pointer_data()); }
+    auto rbegin() const     { return std::rbegin(this->pointer_data()); }
+    auto crbegin() const    { return std::crbegin(this->pointer_data()); }
+*/
+    auto end()              { return this->pointer_data_end(); }
+    auto end() const        { return this->pointer_data_end(); }
+    auto cend() const       { return this->pointer_data_end(); }
+/*
+    auto rend()             { return std::rend(this->pointer_data()); }
+    auto rend() const       { return std::rend(this->pointer_data()); }
+    auto crend() const      { return std::crend(this->pointer_data()); }
+*/
     void read_from(const T* a) {
         std::copy(a, a + R*C, begin());
     }
@@ -149,9 +154,6 @@ public:
     void write_to(T* a) const {
         std::copy(begin(), end(), a);
     }
-
-private:
-    T __mat [R * C]; // 0-size compile only with GCC
 };
 
 /* Operations */

@@ -194,5 +194,7 @@ int main() {
 
     Matrix<float, 0, 0> m0;
 
+    std::cout << m0.magnitude() << std::endl;
+
     return 0;
 }
