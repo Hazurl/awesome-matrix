@@ -269,6 +269,9 @@ Matrix<T, R, C> operator - (Matrix<T, R, C> const& m) {
 
 template<typename T, uint R, uint C>
 std::ostream& operator << (std::ostream& os, Matrix<T, R, C> const& m) {
+    if (R == 0) 
+        return os << "[]\n";
+
     uint size = 0;
     for (uint r = 0; r < R; r++) {
         for(uint c = 0; c < C ; ++c) {
@@ -279,7 +282,6 @@ std::ostream& operator << (std::ostream& os, Matrix<T, R, C> const& m) {
         }
     }
 
-    if (R == 0) os << "[]\n";
     for (uint r = 0; r < R; r++) {
         if (r == 0)
             os << (R == 1 ? "[ " : "┌ ");
