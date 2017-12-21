@@ -6,16 +6,16 @@ int main() {
 
     using namespace awm;
 
-    Matrix<float, 4, 4> m44(0.);
+    Matrix4f m44(0.);
     m44.at(0, 0) = 1;
     m44.at(0, 1) = 2;
     m44.at(0, 2) = 3;
     m44.at(0, 3) = 6;
 
-    m44.at(1, 0) = -2;
-    m44.at(1, 1) = -3;
-    m44.at(1, 2) = -4;
-    m44.at(1, 3) = -5;
+    m44(1, 0) = -2;
+    m44(1, 1) = -3;
+    m44(1, 2) = -4;
+    m44(1, 3) = -5;
 
     m44.at(2, 0) = -3;
     m44.at(2, 1) = 4;
@@ -31,8 +31,8 @@ int main() {
 
     std::cout << m44.determinant() << std::endl;
 
-    Matrix<float, 2, 2> _m(-1);
-    Matrix<float, 2, 2> m{
+    Matrix2f _m(-1);
+    Matrix2f m{
         -1, -3,
         -2, -1
     };
@@ -41,7 +41,7 @@ int main() {
 
     std::cout << m.determinant() << std::endl;
 
-    m.at(0, 1) = 42;
+    m(0, 1) = 42;
     m[0][0] = 1337;
     auto row = m[1];
     row[0] = -100;
@@ -106,7 +106,7 @@ int main() {
 
     std::cout << m << std::endl;
 
-    Matrix<float, 0, 0> m0;
+    Matrixf<0, 0> m0;
 
     std::cout << m0 << std::endl;
 
