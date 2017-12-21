@@ -175,6 +175,9 @@ private:
         }
 
     };
+
+    constexpr uint index_of(uint r, uint c) const { return column() * r + c; } 
+
 public:
 
     Matrix() {}
@@ -190,16 +193,16 @@ public:
 
     constexpr uint row   () const { return R; }
     constexpr uint column() const { return C; }
-    constexpr uint size  () const { return R*C; }
+    constexpr uint size  () const { return row()*column(); }
     constexpr bool in_range(uint r, uint c) const { return r < row() && c < column(); }
 
-    T&       at(uint r, uint c) &        { if (in_range(r, c)) return this->pointer_data()[r*C + c]; throw std::out_of_range("Either row or column is out of range"); }
-    cr_value at(uint r, uint c) const &  { if (in_range(r, c)) return this->pointer_data()[r*C + c]; throw std::out_of_range("Either row or column is out of range"); }
-    T        at(uint r, uint c) const && { if (in_range(r, c)) return this->pointer_data()[r*C + c]; throw std::out_of_range("Either row or column is out of range"); }
+    T&       at(uint r, uint c) &        { if (in_range(r, c)) return this->pointer_data()[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
+    cr_value at(uint r, uint c) const &  { if (in_range(r, c)) return this->pointer_data()[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
+    T        at(uint r, uint c) const && { if (in_range(r, c)) return this->pointer_data()[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
 
-    T&       operator () (uint r, uint c) &        { return this->pointer_data()[r*C + c]; }
-    cr_value operator () (uint r, uint c) const &  { return this->pointer_data()[r*C + c]; }
-    T        operator () (uint r, uint c) const && { return this->pointer_data()[r*C + c]; }
+    T&       operator () (uint r, uint c) &        { return this->pointer_data()[index_of(r, c)]; }
+    cr_value operator () (uint r, uint c) const &  { return this->pointer_data()[index_of(r, c)]; }
+    T        operator () (uint r, uint c) const && { return this->pointer_data()[index_of(r, c)]; }
 
           T* data () &      { return this->pointer_data(); }
     const T* data () const& { return this->pointer_data(); }
@@ -209,7 +212,7 @@ public:
     CRow operator [] (uint r) const &   { return CRow(*this, r); }
 
     void read_from(const T* a) {
-        std::copy(a, a + R*C, begin());
+        std::copy(a, a + size(), begin());
     }
 
     void write_to(T* a) const {
@@ -288,20 +291,6 @@ Matrix<T, R, C> operator + (Matrix<T, R, C> const& m, Matrix<T, R, C> const& n) 
     return o;
 }
 
-// M + T
-template<typename TT, typename T, uint R, uint C>
-Matrix<T, R, C> operator + (Matrix<T, R, C> const& m, TT const& s) {
-    Matrix<T, R, C> n;
-    std::transform(m.begin(), m.end(), n.begin(), [&s] (typename Matrix<T, R, C>::cr_value v) { return v + s; });
-    return n;
-}
-
-// T + M
-template<typename TT, typename T, uint R, uint C>
-Matrix<T, R, C> operator + (TT const& s, Matrix<T, R, C> const& m) {
-    return m + s;
-}
-
 // +M
 template<typename T, uint R, uint C>
 Matrix<T, R, C> operator + (Matrix<T, R, C> const& m) {
@@ -318,20 +307,6 @@ Matrix<T, R, C> operator - (Matrix<T, R, C> const& m, Matrix<T, R, C> const& n) 
     Matrix<T, R, C> o;
     std::transform(m.begin(), m.end(), n.begin(), o.begin(), [] (typename Matrix<T, R, C>::cr_value mv, typename Matrix<T, R, C>::cr_value nv) { return mv - nv; });
     return o;
-}
-
-// M - T
-template<typename TT, typename T, uint R, uint C>
-Matrix<T, R, C> operator - (Matrix<T, R, C> const& m, TT const& s) {
-    Matrix<T, R, C> n;
-    std::transform(m.begin(), m.end(), n.begin(), [&s] (typename Matrix<T, R, C>::cr_value v) { return v - s; });
-    return n;
-}
-
-// T - M
-template<typename TT, typename T, uint R, uint C>
-Matrix<T, R, C> operator - (TT const& s, Matrix<T, R, C> const& m) {
-    return m - s;
 }
 
 // -M
