@@ -1,7 +1,5 @@
 #pragma once
 
-#include <awm/config.hpp>
-
 namespace awm {
 
 #define POINTER_DATA(size)\
@@ -16,7 +14,7 @@ namespace awm {
     inline T*       pointer_data_end ()       { return nullptr; }\
     inline const T* pointer_data_end () const { return nullptr; }
 
-template<typename T, uint R, uint C> 
+template<typename T, unsigned int R, unsigned int C> 
 class MatrixData {
 public:
     T data[R*C];
@@ -24,13 +22,13 @@ protected:
     POINTER_DATA(R*C)
 };
 
-template<typename T, uint C> 
+template<typename T, unsigned int C> 
 class MatrixData<T, 0, C> {
 protected:
     POINTER_DATA_NULLPTR()
 };
 
-template<typename T, uint R> 
+template<typename T, unsigned int R> 
 class MatrixData<T, R, 0> {
 protected:
     POINTER_DATA_NULLPTR()

@@ -114,5 +114,16 @@ int main() {
 
     std::cout << m0.magnitude() << std::endl;
 
+    auto p = m44.get_indices(m44.iterator_to(0, 0));
+    std::cout << p.first << ", " << p.second << std::endl;
+    p = m44.get_indices(m44.iterator_to(1, 0));
+    std::cout << p.first << ", " << p.second << std::endl;
+    p = m44.get_indices(m44.iterator_to(0, 1));
+    std::cout << p.first << ", " << p.second << std::endl;
+    p = m44.get_indices(m44.iterator_to(1, 2));
+    std::cout << p.first << ", " << p.second << std::endl;
+    p = m44.get_indices(m44.iterator_to(3, 3));
+    std::cout << p.first << ", " << p.second << std::endl;
+
     return 0;
 }
