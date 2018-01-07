@@ -1,349 +1,279 @@
 #pragma once
 
+#include <array>
+
 namespace awm {
 
-#define POINTER_DATA(size)\
-    inline T*       pointer_data ()       { return data; }\
-    inline const T* pointer_data () const { return data; }\
-    inline T*       pointer_data_end ()       { return data + size; }\
-    inline const T* pointer_data_end () const { return data + size; }
+#define ACCESSOR(name, index) \
+                    T& name()       { return this->values[index]; } \
+    constexpr const T& name() const { return this->values[index]; }
 
-#define POINTER_DATA_NULLPTR()\
-    inline T*       pointer_data ()       { return nullptr; }\
-    inline const T* pointer_data () const { return nullptr; }\
-    inline T*       pointer_data_end ()       { return nullptr; }\
-    inline const T* pointer_data_end () const { return nullptr; }
-
-template<typename T, unsigned int R, unsigned int C> 
+template<typename T, unsigned int R, unsigned int C>
 class MatrixData {
 public:
-    T data[R*C];
-protected:
-    POINTER_DATA(R*C)
+    std::array<T, R*C> values;
 };
 
-template<typename T, unsigned int C> 
-class MatrixData<T, 0, C> {
-protected:
-    POINTER_DATA_NULLPTR()
-};
+template<typename T, unsigned int R, unsigned int C> 
+class MatrixAccessor : public MatrixData<T, R, C> {};
 
-template<typename T, unsigned int R> 
-class MatrixData<T, R, 0> {
-protected:
-    POINTER_DATA_NULLPTR()
+template<typename T> 
+class MatrixAccessor<T, 1, 1> : public MatrixData<T, 1, 1> {
+public:
+    ACCESSOR(x, 0)
+    ACCESSOR(m00, 0)
 };
 
 template<typename T> 
-class MatrixData<T, 0, 0> {
-protected:
-    POINTER_DATA_NULLPTR()
-};
-
-template<typename T> 
-class MatrixData<T, 1, 1> {
+class MatrixAccessor<T, 1, 2> : public MatrixData<T, 1, 2> {
 public:
 
-    union {
-        T data[1];
-        T x;
-        T m00;
-    };
+    ACCESSOR(x, 0)
+    ACCESSOR(y, 1)
 
-    explicit operator T& () & {
-        return data[0];
-    }
-
-    explicit operator const T& () const& {
-        return data[0];
-    }
-
-    explicit operator T&& () && {
-        return std::move(data[0]);
-    }
-
-protected:
-    POINTER_DATA(1)
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
 
 };
 
 template<typename T> 
-class MatrixData<T, 1, 2> {
+class MatrixAccessor<T, 1, 3> : public MatrixData<T, 1, 3> {
 public:
 
-    union {
-        T data[2];
-        struct {
-            T x, y;
-        };
-        struct {
-            T m00, m01;
-        };
-    };
+    ACCESSOR(x, 0)
+    ACCESSOR(y, 1)
+    ACCESSOR(z, 2)
 
-protected:
-    POINTER_DATA(2)
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
 
 };
 
 template<typename T> 
-class MatrixData<T, 1, 3> {
+class MatrixAccessor<T, 1, 4> : public MatrixData<T, 1, 4> {
 public:
 
-    union {
-        T data[3];
-        struct {
-            T x, y, z;
-        };
-        struct {
-            T m00, m01, m02;
-        };
-    };
+    ACCESSOR(x, 0)
+    ACCESSOR(y, 1)
+    ACCESSOR(z, 2)
+    ACCESSOR(w, 3)
 
-protected:
-    POINTER_DATA(3)
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
+    ACCESSOR(m03, 3)
 
 };
 
 template<typename T> 
-class MatrixData<T, 1, 4> {
+class MatrixAccessor<T, 2, 1> : public MatrixData<T, 2, 1> {
 public:
 
-    union {
-        T data[4];
-        struct {
-            T x, y, z, w;
-        };
-        struct {
-            T m00, m01, m02, m03;
-        };
-    };
+    ACCESSOR(x, 0)
+    ACCESSOR(y, 1)
 
-protected:
-    POINTER_DATA(4)
+    ACCESSOR(m00, 0)
+    ACCESSOR(m10, 1)
 
 };
 
 template<typename T> 
-class MatrixData<T, 2, 1> {
+class MatrixAccessor<T, 2, 2> : public MatrixData<T, 2, 2> {
 public:
 
-    union {
-        T data[2];
-        struct {
-            T x, y;
-        };
-        struct {
-            T m00, 
-              m01;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
 
-protected:
-    POINTER_DATA(2)
+    ACCESSOR(m10, 2)
+    ACCESSOR(m11, 3)
 
 };
 
 template<typename T> 
-class MatrixData<T, 2, 2> {
+class MatrixAccessor<T, 2, 3> : public MatrixData<T, 2, 3> {
 public:
 
-    union {
-        T data[4];
-        struct {
-            T m00, m01, 
-              m10, m11;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
 
-protected:
-    POINTER_DATA(4)
+    ACCESSOR(m10, 3)
+    ACCESSOR(m11, 4)
+    ACCESSOR(m12, 5)
 
 };
 
 template<typename T> 
-class MatrixData<T, 2, 3> {
+class MatrixAccessor<T, 2, 4> : public MatrixData<T, 2, 4> {
 public:
 
-    union {
-        T data[6];
-        struct {
-            T m00, m01, m02,
-              m10, m11, m12;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
+    ACCESSOR(m03, 3)
 
-protected:
-    POINTER_DATA(6)
+    ACCESSOR(m10, 4)
+    ACCESSOR(m11, 5)
+    ACCESSOR(m12, 6)
+    ACCESSOR(m13, 7)
 
 };
 
 template<typename T> 
-class MatrixData<T, 2, 4> {
+class MatrixAccessor<T, 3, 1> : public MatrixData<T, 3, 1> {
 public:
 
-    union {
-        T data[6];
-        struct {
-            T m00, m01, m02, m03,
-              m10, m11, m12, m13;
-        };
-    };
+    ACCESSOR(x, 0)
+    ACCESSOR(y, 1)
+    ACCESSOR(z, 2)
 
-protected:
-    POINTER_DATA(8)
+    ACCESSOR(m00, 0)
+
+    ACCESSOR(m10, 1)
+
+    ACCESSOR(m20, 2)
 
 };
 
 template<typename T> 
-class MatrixData<T, 3, 1> {
+class MatrixAccessor<T, 3, 2> : public MatrixData<T, 3, 2> {
 public:
 
-    union {
-        T data[3];
-        struct {
-            T x, y, z;
-        };
-        struct {
-            T m00, 
-              m01, 
-              m02;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
 
-protected:
-    POINTER_DATA(3)
+    ACCESSOR(m10, 3)
+    ACCESSOR(m11, 4)
+    ACCESSOR(m12, 5)
 
 };
 
 template<typename T> 
-class MatrixData<T, 3, 2> {
+class MatrixAccessor<T, 3, 3> : public MatrixData<T, 3, 3> {
 public:
 
-    union {
-        T data[6];
-        struct {
-            T m00, m01,
-              m10, m11,
-              m20, m21;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
 
-protected:
-    POINTER_DATA(6)
+    ACCESSOR(m10, 3)
+    ACCESSOR(m11, 4)
+    ACCESSOR(m12, 5)
+
+    ACCESSOR(m20, 6)
+    ACCESSOR(m21, 7)
+    ACCESSOR(m22, 8)
 
 };
 
 template<typename T> 
-class MatrixData<T, 3, 3> {
+class MatrixAccessor<T, 3, 4> : public MatrixData<T, 3, 4> {
 public:
 
-    union {
-        T data[9];
-        struct {
-            T m00, m01, m02,
-              m10, m11, m12,
-              m20, m21, m22;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
+    ACCESSOR(m03, 3)
 
-protected:
-    POINTER_DATA(9)
+    ACCESSOR(m10, 4)
+    ACCESSOR(m11, 5)
+    ACCESSOR(m12, 6)
+    ACCESSOR(m13, 7)
+
+    ACCESSOR(m20, 8)
+    ACCESSOR(m21, 9)
+    ACCESSOR(m22, 10)
+    ACCESSOR(m23, 11)
 
 };
 
 template<typename T> 
-class MatrixData<T, 3, 4> {
+class MatrixAccessor<T, 4, 1> : public MatrixData<T, 4, 1> {
 public:
 
-    union {
-        T data[3];
-        struct {
-            T m00, m01, m02, m03,
-              m10, m11, m12, m13,
-              m20, m21, m22, m23;
-        };
-    };
+    ACCESSOR(x, 0)
+    ACCESSOR(y, 1)
+    ACCESSOR(z, 2)
+    ACCESSOR(w, 3)
 
-protected:
-    POINTER_DATA(12)
+    ACCESSOR(m00, 0)
+
+    ACCESSOR(m10, 1)
+
+    ACCESSOR(m20, 2)
+
+    ACCESSOR(m30, 3)
 
 };
 
 template<typename T> 
-class MatrixData<T, 4, 1> {
+class MatrixAccessor<T, 4, 2> : public MatrixData<T, 4, 2> {
 public:
 
-    union {
-        T data[4];
-        struct {
-            T x, y, z, w;
-        };
-        struct {
-            T m00, m01, m02, m03;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
 
-protected:
-    POINTER_DATA(4)
+    ACCESSOR(m10, 2)
+    ACCESSOR(m11, 3)
+
+    ACCESSOR(m20, 4)
+    ACCESSOR(m21, 5)
+
+    ACCESSOR(m30, 6)
+    ACCESSOR(m31, 7)
 
 };
 
 template<typename T> 
-class MatrixData<T, 4, 2> {
+class MatrixAccessor<T, 4, 3> : public MatrixData<T, 4, 3> {
 public:
 
-    union {
-        T data[8];
-        struct {
-            T m00, m01,
-              m10, m11,
-              m20, m21,
-              m30, m31;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
 
-protected:
-    POINTER_DATA(8)
+    ACCESSOR(m10, 3)
+    ACCESSOR(m11, 4)
+    ACCESSOR(m12, 5)
+
+    ACCESSOR(m20, 6)
+    ACCESSOR(m21, 7)
+    ACCESSOR(m22, 8)
+
+    ACCESSOR(m30, 9)
+    ACCESSOR(m31, 10)
+    ACCESSOR(m32, 11)
 
 };
 
 template<typename T> 
-class MatrixData<T, 4, 3> {
+class MatrixAccessor<T, 4, 4> : public MatrixData<T, 4, 4> {
 public:
 
-    union {
-        T data[12];
-        struct {
-            T m00, m01, m02,
-              m10, m11, m12,
-              m20, m21, m22,
-              m30, m31, m32;
-        };
-    };
+    ACCESSOR(m00, 0)
+    ACCESSOR(m01, 1)
+    ACCESSOR(m02, 2)
+    ACCESSOR(m03, 3)
 
-protected:
-    POINTER_DATA(12)
+    ACCESSOR(m10, 4)
+    ACCESSOR(m11, 5)
+    ACCESSOR(m12, 6)
+    ACCESSOR(m13, 7)
+
+    ACCESSOR(m20, 8)
+    ACCESSOR(m21, 9)
+    ACCESSOR(m22, 10)
+    ACCESSOR(m23, 11)
+
+    ACCESSOR(m30, 12)
+    ACCESSOR(m31, 13)
+    ACCESSOR(m32, 14)
+    ACCESSOR(m33, 15)
 
 };
 
-template<typename T> 
-class MatrixData<T, 4, 4> {
-public:
-
-    union {
-        T data[16];
-        struct {
-            T m00, m01, m02, m03,
-              m10, m11, m12, m13,
-              m20, m21, m22, m23,
-              m30, m31, m32, m33;
-        };
-    };
-
-protected:
-    POINTER_DATA(16)
-
-};
+#undef ACCESSOR
 
 }

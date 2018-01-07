@@ -30,8 +30,6 @@
 #include <awm/Operations/OpIsTriangle.hpp>
 #include <awm/Operations/OpIsDiagonal.hpp>
 
-#include <awm/Iterators.hpp>
-
 #include <numeric>
 #include <algorithm>
 #include <cmath>
@@ -95,7 +93,7 @@ using Vector2d = Vectord<2>;
 
 template<typename T, unsigned int R, unsigned int C>
 class Matrix :
-    public MatrixData           <        T, R, C>,
+    private MatrixAccessor      <        T, R, C>,
 
     public OpTranspose          <Matrix, T, R, C>,
 
@@ -131,11 +129,6 @@ public:
     using container_t = this_t;
 
     using cr_value = std::conditional_t<(sizeof(T) > 8), const T&, T>;
-
-    using forward_iterator = RandomIterator<container_t, T, true>;
-    using backward_iterator = RandomIterator<container_t, T, false>;
-    using forward_const_iterator = ConstRandomIterator<container_t, T, true>;
-    using backward_const_iterator = ConstRandomIterator<container_t, T, false>;
 
 private:
     struct Row {
@@ -235,16 +228,16 @@ public:
     constexpr bool is_square() const { return row() == column(); } 
     constexpr bool in_range(unsigned int r, unsigned int c) const { return r < row() && c < column(); }
 
-    T&       at(unsigned int r, unsigned int c) &        { if (in_range(r, c)) return this->pointer_data()[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
-    T const& at(unsigned int r, unsigned int c) const &  { if (in_range(r, c)) return this->pointer_data()[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
-    T        at(unsigned int r, unsigned int c) const && { if (in_range(r, c)) return this->pointer_data()[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
+    T&       at(unsigned int r, unsigned int c) &        { if (in_range(r, c)) return this->values[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
+    T const& at(unsigned int r, unsigned int c) const &  { if (in_range(r, c)) return this->values[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
+    T        at(unsigned int r, unsigned int c) const && { if (in_range(r, c)) return this->values[index_of(r, c)]; throw std::out_of_range("Either row or column is out of range"); }
 
-    T&       operator () (unsigned int r, unsigned int c) &        { return this->pointer_data()[index_of(r, c)]; }
-    T const& operator () (unsigned int r, unsigned int c) const &  { return this->pointer_data()[index_of(r, c)]; }
-    T        operator () (unsigned int r, unsigned int c) const && { return this->pointer_data()[index_of(r, c)]; }
+    T&       operator () (unsigned int r, unsigned int c) &        { return this->values[index_of(r, c)]; }
+    T const& operator () (unsigned int r, unsigned int c) const &  { return this->values[index_of(r, c)]; }
+    T        operator () (unsigned int r, unsigned int c) const && { return this->values[index_of(r, c)]; }
 
-          T* data () &      { return this->pointer_data(); }
-    const T* data () const& { return this->pointer_data(); }
+          T* data () &      { return this->values.data(); }
+    const T* data () const& { return this->values.data(); }
 
     Row operator [] (unsigned int r) &          { return Row(*this, r); }
     Row operator [] (unsigned int r) const &&   { return Row(*this, r); }
@@ -258,30 +251,31 @@ public:
         std::copy(begin(), end(), a);
     }
 
-    auto begin()  { return forward_iterator(*this, 0); }
-    auto end()    { return forward_iterator(*this, size()); }
-    auto rbegin() { return backward_iterator(*this, 0); }
-    auto rend()   { return backward_iterator(*this, size()); }
+    auto begin()  { return this->values.begin(); }
+    auto end()    { return this->values.end(); }
+    auto rbegin() { return this->values.rbegin(); }
+    auto rend()   { return this->values.rend(); }
 
-    auto cbegin() const   { return forward_const_iterator(*this, 0); }
-    auto cend() const     { return forward_const_iterator(*this, size()); }
-    auto crbegin() const  { return backward_const_iterator(*this, 0); }
-    auto crend() const    { return backward_const_iterator(*this, size()); }
+    auto cbegin() const   { return this->values.cbegin(); }
+    auto cend() const     { return this->values.cend(); }
+    auto crbegin() const  { return this->values.crbegin(); }
+    auto crend() const    { return this->values.crend(); }
 
-    auto begin() const   { return cbegin(); }
-    auto end() const     { return cend(); }
-    auto rbegin() const  { return crbegin(); }
-    auto rend() const    { return crend(); }
+    auto begin() const   { return this->values.begin(); }
+    auto end() const     { return this->values.end(); }
+    auto rbegin() const  { return this->values.rbegin(); }
+    auto rend() const    { return this->values.rend(); }
 
-    auto iterator_to(unsigned int r, unsigned int c) { return forward_iterator(*this, index_of(r, c)); }
-    auto citerator_to(unsigned int r, unsigned int c) { return forward_const_iterator(*this, index_of(r, c)); }
-    auto riterator_to(unsigned int r, unsigned int c) { return backward_iterator(*this, size() - 1 - index_of(r, c)); }
-    auto criterator_to(unsigned int r, unsigned int c) { return backward_const_iterator(*this, size() - 1 - index_of(r, c)); }
+    auto iterator_to(unsigned int r, unsigned int c) { return begin() + index_of(r, c); }
+    auto citerator_to(unsigned int r, unsigned int c) { return cbegin() + index_of(r, c); }
+    auto riterator_to(unsigned int r, unsigned int c) { return rbegin() + (size() - index_of(r, c)); }
+    auto criterator_to(unsigned int r, unsigned int c) { return crbegin() + (size() - index_of(r, c)); }
 
     template<typename I>
     // { Row, Column }
     std::pair<unsigned int, unsigned int> get_indices(I const& it) const {
-        return { (it.pos - it.pos % column()) / column() , it.pos % column() };
+        unsigned int dist = it - begin();
+        return { (dist - dist % column()) / column() , dist % column() };
     }
 
     auto norm(int p = 2) const {

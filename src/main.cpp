@@ -106,13 +106,13 @@ int main() {
 
     std::cout << m << std::endl;
 
-    Matrixf<0, 0> m0;
+    //Matrixf<0, 0> m0;
 
-    std::cout << m0 << std::endl;
+    //std::cout << m0 << std::endl;
 
     std::cout << Matrix<int, 20, 20>::identity() << std::endl;
 
-    std::cout << m0.magnitude() << std::endl;
+    //std::cout << m0.magnitude() << std::endl;
 
     auto p = m44.get_indices(m44.iterator_to(0, 0));
     std::cout << p.first << ", " << p.second << std::endl;
