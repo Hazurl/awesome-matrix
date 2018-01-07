@@ -247,8 +247,20 @@ public:
         std::copy(a, a + size(), begin());
     }
 
+    std::ostream& serialize(std::ostream& os) const {
+        for(auto const& v : *this) {
+            os << v;
+        }
+    }
+
     void write_to(T* a) const {
         std::copy(begin(), end(), a);
+    }
+
+    std::istream& deserialize(std::istream& is) const {
+        for(auto const& v : *this) {
+            is >> v;
+        }
     }
 
     auto begin()  { return this->values.begin(); }
