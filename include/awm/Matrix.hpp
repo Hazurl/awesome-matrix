@@ -24,11 +24,14 @@
 #include <awm/Operations/OpSubMatrix.hpp>
 #include <awm/Operations/OpWithout.hpp>
 
-#include <awm/Constructor/CtorDiagonal.hpp>
-#include <awm/Constructor/CtorIdentity.hpp>
+#include <awm/Operations/OpDotProduct.hpp>
+#include <awm/Operations/OpCrossProduct.hpp>
 
 #include <awm/Operations/OpIsTriangle.hpp>
 #include <awm/Operations/OpIsDiagonal.hpp>
+
+#include <awm/Constructor/CtorDiagonal.hpp>
+#include <awm/Constructor/CtorIdentity.hpp>
 
 #include <numeric>
 #include <algorithm>
@@ -115,6 +118,9 @@ class Matrix :
     public OpMinors             <Matrix, T, R, C>,
     public OpAdjugate           <Matrix, T, R, C>,
     public OpInverse            <Matrix, T, R, C>,
+
+    public OpCrossProduct       <Matrix, T, R, C>,
+    public OpDotProduct         <Matrix, T, R, C>,
 
     public OpIsDiagonal         <Matrix, T, R, C>,
     public OpIsTriangle         <Matrix, T, R, C>,
@@ -251,6 +257,7 @@ public:
         for(auto const& v : *this) {
             os << v;
         }
+        return os;
     }
 
     void write_to(T* a) const {
@@ -261,6 +268,7 @@ public:
         for(auto const& v : *this) {
             is >> v;
         }
+        return is;
     }
 
     auto begin()  { return this->values.begin(); }
