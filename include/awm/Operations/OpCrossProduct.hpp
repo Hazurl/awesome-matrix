@@ -39,7 +39,7 @@ class OpCrossProduct<M, T, 1, 3, true> {
 
 public:
 
-    result_t cross_product(M<T, 3, 1> const& v) const {
+    result_t cross_product(M<T, 1, 3> const& v) const {
         return {
             at(2) * v.at(0, 3) - at(3) * v.at(0, 2),
             at(3) * v.at(0, 1) - at(1) * v.at(0, 3),

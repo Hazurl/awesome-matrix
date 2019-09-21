@@ -42,15 +42,15 @@ namespace details {
 }
 
 template<typename M>
-constexpr unsigned int GetRow = details::GetRow<M>::value;
+constexpr unsigned int get_row_v = details::GetRow<M>::value;
 
 template<typename M>
-constexpr unsigned int GetColumn = details::GetColumn<M>::value;
+constexpr unsigned int get_column_v = details::GetColumn<M>::value;
 
 template<typename M>
-using GetUnderlyingType = typename details::GetUnderlyingType<M>::value;
+using get_uderlying_type_t = typename details::GetUnderlyingType<M>::value;
 
 template<typename M, template<template<typename, unsigned int, unsigned int>, typename, unsigned int, unsigned int, bool> typename Op>
-constexpr bool isOpAllowed = details::OpAllowed<M, Op>::value;
+constexpr bool is_op_allowed = details::OpAllowed<M, Op>::value;
 
 }

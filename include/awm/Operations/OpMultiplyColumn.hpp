@@ -4,9 +4,7 @@
 
 namespace awm {
 
-template<template<typename, unsigned int, unsigned int> typename M, typename T, unsigned int R, unsigned int C, bool = (
-    C > 0
-)>
+template<template<typename, unsigned int, unsigned int> typename M, typename T, unsigned int R, unsigned int C, bool = true>
 class OpMultiplyColumn {
     using this_t = M<T, R, C>*;
     using cthis_t = const M<T, R, C>*;
@@ -29,8 +27,5 @@ public:
     }
 
 };
-
-template<template<typename, unsigned int, unsigned int> typename M, typename T, unsigned int R, unsigned int C>
-class OpMultiplyColumn<M, T, R, C, false> {};
 
 }

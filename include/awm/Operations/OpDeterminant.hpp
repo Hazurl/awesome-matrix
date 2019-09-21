@@ -34,7 +34,7 @@ class OpDeterminant<M, T, 0, 0, true> {
 public:
 
     T determinant() const {
-        return 1;
+        return static_cast<T>(1);
     }
 };
 

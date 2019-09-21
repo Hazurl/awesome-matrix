@@ -7,7 +7,7 @@
 namespace awm {
 
 template<template<typename, unsigned int, unsigned int> typename M, typename T, unsigned int R, unsigned int C, bool = (
-    R > 1
+    R > 0
 )>
 class OpSwitchRow {
     using this_t = M<T, R, C>*;
