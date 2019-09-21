@@ -51,7 +51,7 @@ OPTIM := -O2
 # C++ flags
 FLAGS := -std=c++17 -g3 -Wall -Wextra -Wno-pmf-conversions
 # C++ librairy
-LIBS := -lGL -lGLU -lGLEW -lglfw3 -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor 
+LIBS :=  
 # Header include folder
 INCLUDE := -I ./include
 # Makefile flags
